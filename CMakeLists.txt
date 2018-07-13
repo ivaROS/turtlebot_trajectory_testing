@@ -124,25 +124,55 @@ include_directories(
 
 
 
-## Declare a cpp library
+## pips_trajectory_tester specialized for turtlebot
 add_library(turtlebot_trajectory_tester
    src/turtlebot_trajectory_tester.cpp
 )
-
 add_dependencies(turtlebot_trajectory_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
 target_compile_options(turtlebot_trajectory_tester PRIVATE -Wall ${OpenMP_CXX_FLAGS})
 target_compile_options(turtlebot_trajectory_tester PUBLIC  -std=c++11)
+target_link_libraries(turtlebot_trajectory_tester
+  PUBLIC
+   ${catkin_LIBRARIES}
+   #PRIVATE
+   ${OpenMP_CXX_FLAGS}
+)
 
 
-# ## Declare a cpp library
-# add_library(obstacle_avoidance_controller
-#    src/obstacle_avoidance_controller.cpp
-# )
-# 
-# add_dependencies(obstacle_avoidance_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
-# target_compile_options(obstacle_avoidance_controller PRIVATE -Wall ${OpenMP_CXX_FLAGS})
-# target_compile_options(obstacle_avoidance_controller PUBLIC  -std=c++11)
+## obstacle_avoidance_controller specialized for turtlebot
+add_library(turtlebot_obstacle_avoidance_controller
+   src/obstacle_avoidance_controller.cpp
+)
+target_link_libraries(turtlebot_obstacle_avoidance_controller
+  turtlebot_trajectory_tester
+  ${catkin_LIBRARIES}
+)
+add_dependencies(turtlebot_obstacle_avoidance_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
+target_compile_options(turtlebot_obstacle_avoidance_controller PRIVATE -Wall ${OpenMP_CXX_FLAGS})
+target_compile_options(turtlebot_obstacle_avoidance_controller PUBLIC  -std=c++11)
 
+
+## depth image obstacle_avoidance_controller
+add_library(turtlebot_depth_controller
+   src/depth_controller.cpp
+)
+target_link_libraries(turtlebot_depth_controller
+  turtlebot_obstacle_avoidance_controller
+  ${catkin_LIBRARIES}
+)
+add_dependencies(turtlebot_depth_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
+target_compile_options(turtlebot_depth_controller PRIVATE -Wall ${OpenMP_CXX_FLAGS})
+target_compile_options(turtlebot_depth_controller PUBLIC  -std=c++11)
+
+
+add_executable(depth_controller
+  src/depth_controller_node.cpp
+)
+add_dependencies(depth_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(depth_controller
+  turtlebot_depth_controller
+  ${catkin_LIBRARIES}
+)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
