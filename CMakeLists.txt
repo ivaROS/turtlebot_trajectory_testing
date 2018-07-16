@@ -123,20 +123,20 @@ include_directories(
 )
 
 
-# 
-# ## pips_trajectory_tester specialized for turtlebot
-# add_library(turtlebot_trajectory_tester
-#    src/turtlebot_trajectory_tester.cpp
-# )
-# add_dependencies(turtlebot_trajectory_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
-# target_compile_options(turtlebot_trajectory_tester PRIVATE -Wall ${OpenMP_CXX_FLAGS})
-# target_compile_options(turtlebot_trajectory_tester PUBLIC  -std=c++11)
-# target_link_libraries(turtlebot_trajectory_tester
-#   PUBLIC
-#    ${catkin_LIBRARIES}
-#    #PRIVATE
-#    ${OpenMP_CXX_FLAGS}
-# )
+
+## pips_trajectory_tester specialized for turtlebot
+add_library(turtlebot_trajectory_tester
+   src/turtlebot_trajectory_tester.cpp
+)
+add_dependencies(turtlebot_trajectory_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
+target_compile_options(turtlebot_trajectory_tester PRIVATE -Wall ${OpenMP_CXX_FLAGS})
+target_compile_options(turtlebot_trajectory_tester PUBLIC  -std=c++11)
+target_link_libraries(turtlebot_trajectory_tester
+  PUBLIC
+   ${catkin_LIBRARIES}
+   #PRIVATE
+   ${OpenMP_CXX_FLAGS}
+)
 
 
 ## obstacle_avoidance_controller specialized for turtlebot
@@ -144,18 +144,13 @@ add_library(turtlebot_obstacle_avoidance_controller
    src/obstacle_avoidance_controller.cpp
 )
 target_link_libraries(turtlebot_obstacle_avoidance_controller
-#  turtlebot_trajectory_tester
+  turtlebot_trajectory_tester
   ${catkin_LIBRARIES}
 )
 add_dependencies(turtlebot_obstacle_avoidance_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
 target_compile_options(turtlebot_obstacle_avoidance_controller PRIVATE -Wall ${OpenMP_CXX_FLAGS})
 target_compile_options(turtlebot_obstacle_avoidance_controller PUBLIC  -std=c++11)
-target_link_libraries(turtlebot_obstacle_avoidance_controller
-  PUBLIC
-   ${catkin_LIBRARIES}
-   #PRIVATE
-   ${OpenMP_CXX_FLAGS}
-)
+
 
 ## depth image obstacle_avoidance_controller
 add_library(turtlebot_depth_controller
