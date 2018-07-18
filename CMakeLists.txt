@@ -106,7 +106,7 @@ find_package(OpenMP)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES turtlebot_trajectory_tester
+  LIBRARIES turtlebot_trajectory_tester turtlebot_obstacle_avoidance_controller
   CATKIN_DEPENDS pips_trajectory_testing turtlebot_trajectory_controller turtlebot_trajectory_generator
 #  DEPENDS system_lib
 )
