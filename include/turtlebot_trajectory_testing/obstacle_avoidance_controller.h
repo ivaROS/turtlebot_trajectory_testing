@@ -39,15 +39,17 @@ protected:
 
   virtual void setupPublishersSubscribers();
   
-  
-  std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(unsigned int num_paths, double velocity);
-  
-  std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(unsigned int num_paths, double velocity, double path_limits);
- 
-  std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(const std::vector<double>& dep_angles, double velocity);
+
   
   std::vector<traj_func_ptr> getTrajectoryFunctions();
   
+public:
+  
+  static std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(unsigned int num_paths, double velocity);
+  
+  static std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(unsigned int num_paths, double velocity, double path_limits);
+  
+  static std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(const std::vector<double>& dep_angles, double velocity);
 
 };
 

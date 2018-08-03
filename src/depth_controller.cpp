@@ -24,7 +24,7 @@ namespace turtlebot_trajectory_testing
         cc_wrapper_ = std::make_shared<pips_trajectory_testing::DepthImageCCWrapper>(nh_, pnh_,tfBuffer_);
         traj_tester_->setCollisionChecker(cc_wrapper_->getCC());
         
-        cc_wrapper_->setBaseFrame(base_frame_id_);
+        //cc_wrapper_->setBaseFrame(base_frame_id_);
   }
   
      
@@ -35,23 +35,16 @@ namespace turtlebot_trajectory_testing
   // If so, then this code will probably move back to the main controller but be renamed 'transformReady' or something
   bool DepthController::isReady(const std_msgs::Header& header)
   {
-    if(!TurtlebotObstacleAvoidanceController::isReady(header))
-    {
-      return false;
-    }
-
-    else
-    {
-        if(cc_wrapper_->isReady(header))
-        {
-            cc_wrapper_->update();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+      if(cc_wrapper_->isReady(header))
+      {
+          cc_wrapper_->update();
+          return true;
+      }
+      else
+      {
+          return false;
+      }
+    
   }
   
   void DepthController::generateTrajectories()
