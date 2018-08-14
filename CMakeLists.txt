@@ -174,6 +174,16 @@ target_link_libraries(depth_controller
   ${catkin_LIBRARIES}
 )
 
+
+
+add_executable(send_test_trajectory
+   src/send_test_trajectory.cpp
+   )
+target_link_libraries(send_test_trajectory
+  turtlebot_trajectory_tester
+   ${catkin_LIBRARIES}
+   )
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/turtlebot_trajectory_testing.cpp
