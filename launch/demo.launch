@@ -1,0 +1,9 @@
+<launch>
+
+  <node name="turtlebot_trajectory_testing" pkg="sentest_trajectory" type="demo" output="screen" args="_fw_vel:=.35 _period:=4 _mag:=.5">
+
+    <rosparam file="$(find path_smoothing_ros)/config/path.yaml" command="load" />
+
+  </node>
+
+</launch>

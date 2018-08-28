@@ -52,12 +52,18 @@
   <build_depend>pips_trajectory_testing</build_depend>
   <build_depend>turtlebot_trajectory_controller</build_depend>
   <build_depend>turtlebot_trajectory_generator</build_depend>
+  <build_depend>common_rosdeps</build_depend>
   <build_export_depend>pips_trajectory_testing</build_export_depend>
   <build_export_depend>turtlebot_trajectory_controller</build_export_depend>
   <build_export_depend>turtlebot_trajectory_generator</build_export_depend>
   <exec_depend>pips_trajectory_testing</exec_depend>
   <exec_depend>turtlebot_trajectory_controller</exec_depend>
   <exec_depend>turtlebot_trajectory_generator</exec_depend>
+  <exec_depend>common_rosdeps</exec_depend>
+
+    <depend>roscpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

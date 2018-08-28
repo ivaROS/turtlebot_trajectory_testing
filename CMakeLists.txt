@@ -11,6 +11,10 @@ find_package(catkin REQUIRED COMPONENTS
   pips_trajectory_testing
   turtlebot_trajectory_controller
   turtlebot_trajectory_generator
+  #
+    roscpp
+  geometry_msgs
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -108,6 +112,10 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES turtlebot_trajectory_tester turtlebot_obstacle_avoidance_controller
   CATKIN_DEPENDS pips_trajectory_testing turtlebot_trajectory_controller turtlebot_trajectory_generator
+  #
+  roscpp
+  geometry_msgs
+  nav_msgs
 #  DEPENDS system_lib
 )
 
@@ -127,6 +135,7 @@ include_directories(
 ## pips_trajectory_tester specialized for turtlebot
 add_library(turtlebot_trajectory_tester
    src/turtlebot_trajectory_tester.cpp
+   src/cubic_spline_interpolator.cpp
 )
 add_dependencies(turtlebot_trajectory_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
 target_compile_options(turtlebot_trajectory_tester PRIVATE -Wall ${OpenMP_CXX_FLAGS})
@@ -134,6 +143,7 @@ target_compile_options(turtlebot_trajectory_tester PUBLIC  -std=c++11)
 target_link_libraries(turtlebot_trajectory_tester
   PUBLIC
    ${catkin_LIBRARIES}
+   yaml-cpp
    #PRIVATE
    ${OpenMP_CXX_FLAGS}
 )
