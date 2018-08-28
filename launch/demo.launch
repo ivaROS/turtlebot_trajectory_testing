@@ -1,8 +1,13 @@
 <launch>
 
-  <node name="turtlebot_trajectory_testing" pkg="sentest_trajectory" type="demo" output="screen" args="_fw_vel:=.35 _period:=4 _mag:=.5">
+  <node name="trajectory_controller" pkg="turtlebot_trajectory_controller" type="trajectory_controller_node" >
+  </node>
 
-    <rosparam file="$(find path_smoothing_ros)/config/path.yaml" command="load" />
+  <node name="turtlebot_trajectory_testing" pkg="turtlebot_trajectory_testing" type="send_test_trajectory" output="screen" args="_fw_vel:=4.0">
+  
+  <!--
+  <remap from="/turtlebot_controller/trajectory_controller/desired_trajectory" to="/desired_trajectory" />
+-->
 
   </node>
 

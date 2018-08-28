@@ -106,8 +106,14 @@ public:
 
 /* The rhs of x' = f(x) defined as a class */
 class spline_traj_func : public desired_traj_func{
+  
   double vf_; //Forward vel
+  
   nav_msgs::Path path_, path_smoothed_;
+  
+  std::vector<double> cummul_distances_;
+  
+  int st_idx;
   
 public:
   spline_traj_func( double vf, std::string waypoints_yaml_) {
@@ -120,30 +126,68 @@ public:
   skipPoints = 0;
   useEndConditions = false;
   useMiddleConditions = false;
-
+  
     // load waypoints from waypoints_yaml_
   YAML::Node wpoints_ = YAML::LoadFile(waypoints_yaml_);
-  
+/*  
+  std::cout << "done with loading yaml!" << std::endl;
+  std::cout << "number of waypoints = " << wpoints_["path_poses"].size() << std::endl;
+  std::cout << "try visiting each waypoint " << wpoints_["path_poses"][0] << std::endl 
+   << wpoints_["path_poses"][0]["x"] << "; " 
+   << wpoints_["path_poses"][0]["y"] << "; "
+   << wpoints_["path_poses"][0]["yaw"] << "; " << std::endl;
+  */
+
   path_.header.frame_id = "map";
   geometry_msgs::PoseStamped pose;
   pose.header.frame_id = "map";
 
   for (int i = 0; i < wpoints_["path_poses"].size(); i++)
   {
-    pose.pose.position.x = static_cast<double>(wpoints_["path_poses"][i]["x"].as<double>());
-    pose.pose.position.y = static_cast<double>(wpoints_["path_poses"][i]["y"].as<double>());
-    pose.pose.orientation = tf::createQuaternionMsgFromYaw(wpoints_["path_poses"][i]["yaw"].as<double>());
+    pose.pose.position.x = static_cast<double>((wpoints_["path_poses"][i]["x"]).as<double>());
+    pose.pose.position.y = static_cast<double>((wpoints_["path_poses"][i]["y"]).as<double>());
+    pose.pose.orientation = tf::createQuaternionMsgFromYaw((wpoints_["path_poses"][i]["yaw"]).as<double>() * 3.14159265 / 180.0);
     path_.poses.push_back(pose);
   }
   
   // create a cubic spline interpolator
-  path_smoothing::CubicSplineInterpolator csi("lala");
-    // pointsPerUnit, skipPoints, useEndConditions, useMiddleConditions);
+  // path_smoothing::CubicSplineInterpolator csi("cubic_spline");
+  path_smoothing::CubicSplineInterpolator csi(pointsPerUnit, skipPoints, useEndConditions, useMiddleConditions);
+ 
+  std::cout << "size of input waypoints = " << path_.poses.size() << std::endl;
   csi.interpolatePath(path_, path_smoothed_);
+  std::cout << "size of smoothed sample points = " << path_smoothed_.poses.size() << std::endl;
+  
+      // create cummulative distances vector
+    cummul_distances_.clear();
+    csi.calcCummulativeDistances(path_smoothed_.poses, cummul_distances_);
+    
+    double total_dist = csi.calcTotalDistance(path_smoothed_.poses);
+    assert(total_dist > 0);
+    
+   for (int i=0; i<cummul_distances_.size(); ++i) {
+     cummul_distances_[i] *= total_dist;
+  }
+    
+  assert(path_smoothed_.poses.size() == cummul_distances_.size());
+
+  /*
+    std::cout << "CummulativeDistances: " << std::endl;
+  std::cout << cummul_distances_[1] << "; " ;
+  std::cout << cummul_distances_[(cummul_distances_.size()-1)/2] << "; " ;
+  std::cout << cummul_distances_[cummul_distances_.size()-1] << "; " ;
   
   
+    std::cout << "path_smoothed_: " << std::endl;
+  std::cout << path_smoothed_.poses[1] << "; " ;
+  std::cout << path_smoothed_.poses[(path_smoothed_.poses.size()-1)/2] << "; " ;
+  std::cout << path_smoothed_.poses[path_smoothed_.poses.size()-1] << "; " ;
+  */
+
     //
     vf_ = vf;
+    
+    st_idx = 0;
   }
   
   
@@ -154,6 +198,33 @@ public:
     dxdt[ni_state::XD_IND] = dx;
     
     dxdt.xd = dx; */
+ 
+ // std::cout << t << std::endl;
+ 
+  // grab the nearest sample points as the reference
+  // compute the gradient based on the reference point
+  double dist_traveled =  t * vf_;
+  int tar_idx;
+  for (tar_idx=0; tar_idx<cummul_distances_.size(); ++tar_idx) {
+     if (cummul_distances_[tar_idx] > dist_traveled)
+	break ;
+  }
+  assert(tar_idx > 0);
+  // std::cout << tar_idx << std::endl;
+  
+  st_idx = tar_idx;
+  
+double dx = path_smoothed_.poses[tar_idx].pose.position.x - path_smoothed_.poses[tar_idx-1].pose.position.x;
+double dy = path_smoothed_.poses[tar_idx].pose.position.y - path_smoothed_.poses[tar_idx-1].pose.position.y;
+double dnorm = std::sqrt(dx*dx + dy*dy);
+  
+  dxdt[ni_state::XD_IND] = dx / dnorm * vf_;
+  dxdt[ni_state::YD_IND] = dy / dnorm * vf_;
+  
+  // dxdt.xd = dxdt[ni_state::XD_IND]; 
+  
+  //std::cout << dxdt[ni_state::XD_IND] << "; " << dxdt[ni_state::YD_IND] << std::endl;
+    
   }
   
   
@@ -180,8 +251,8 @@ public:
     button_subscriber_ = nh_.subscribe("/mobile_base/events/button", 10, &TrajectoryTester::buttonCB, this);
 
     odom_subscriber_ = nh_.subscribe("/odom", 1, &TrajectoryTester::OdomCB, this);
-    trajectory_publisher_ = nh_.advertise< pips_trajectory_msgs::trajectory_points >("/turtlebot_controller/trajectory_controller/desired_trajectory", 10);
-    path_publisher_ = nh_.advertise<nav_msgs::Path>("/desired_path",10);
+    trajectory_publisher_ = nh_.advertise< pips_trajectory_msgs::trajectory_points >("/turtlebot_controller/trajectory_controller/desired_trajectory", 1000);
+    path_publisher_ = nh_.advertise<nav_msgs::Path>("/desired_path",1000);
     
     nav_msgs::OdometryPtr init_odom(new nav_msgs::Odometry);
 
@@ -253,12 +324,14 @@ void TrajectoryTester::buttonCB(const kobuki_msgs::ButtonEventPtr& msg)
 
 pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(const nav_msgs::OdometryPtr& odom_msg)
 {
-    std::string per_key, fw_vel_key, mag_key;
+    std::string per_key, fw_vel_key, mag_key, path_key;
     double fw_vel = .05;
     double r = .5;
 
     double period = 3;
     double mag=1;
+    
+    std::string waypoint_yaml = "/home/yipuzhao/catkin_ws/src/turtlebot_trajectory_testing/config/path.yaml";
     
     if(ros::param::search("period", per_key))
     {
@@ -275,6 +348,11 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
       ros::param::get(mag_key, mag); 
     }
     
+    if(ros::param::search("waypoint_yaml", path_key))
+    {
+        ros::param::get(path_key, waypoint_yaml); 
+    }
+    
     //circle_traj_func trajf(fw_vel,r);
     
     std::vector<TurtlebotGenAndTest::traj_func_ptr> trajectory_functions;
@@ -282,7 +360,7 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     TurtlebotGenAndTest::traj_func_ptr traj = std::make_shared<TurtlebotGenAndTest::traj_func_type>(ni);
  //   desired_traj_func::Ptr des_traj = std::make_shared<circle_traj_func>(fw_vel,mag,period);
  //   desired_traj_func::Ptr des_traj = std::make_shared<sin_traj_func>(fw_vel,mag,period);
-    desired_traj_func::Ptr des_traj = std::make_shared<spline_traj_func>(fw_vel, "/home/yipuzhao/catkin_ws/src/path-smoothing-ros/config/path.yaml");
+    desired_traj_func::Ptr des_traj = std::make_shared<spline_traj_func>(fw_vel, waypoint_yaml);
     traj->setTrajFunc(des_traj);
     
     trajectory_functions.push_back(traj);
