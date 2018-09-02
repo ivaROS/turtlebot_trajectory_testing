@@ -1,11 +1,8 @@
 <launch>
 
-  <node name="trajectory_controller" pkg="turtlebot_trajectory_controller" type="trajectory_controller_node" >
-  </node>
-
-  <node name="turtlebot_trajectory_testing" pkg="turtlebot_trajectory_testing" type="send_test_trajectory" output="screen" args="_fw_vel:=4.0">
+  <node name="turtlebot_trajectory_testing" pkg="turtlebot_trajectory_testing" type="send_test_trajectory" output="screen" args="_fw_vel:=0.7">
   
-  <!--
+<!--
   <remap from="/turtlebot_controller/trajectory_controller/desired_trajectory" to="/desired_trajectory" />
 -->
 

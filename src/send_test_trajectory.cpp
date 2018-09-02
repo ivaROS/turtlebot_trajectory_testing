@@ -122,7 +122,7 @@ public:
   int pointsPerUnit, skipPoints;
   bool useEndConditions, useMiddleConditions;
   
-  pointsPerUnit = 100;
+  pointsPerUnit = 10; // 100;
   skipPoints = 0;
   useEndConditions = false;
   useMiddleConditions = false;
@@ -146,7 +146,7 @@ public:
   {
     pose.pose.position.x = static_cast<double>((wpoints_["path_poses"][i]["x"]).as<double>());
     pose.pose.position.y = static_cast<double>((wpoints_["path_poses"][i]["y"]).as<double>());
-    pose.pose.orientation = tf::createQuaternionMsgFromYaw((wpoints_["path_poses"][i]["yaw"]).as<double>() * 3.14159265 / 180.0);
+    pose.pose.orientation = tf::createQuaternionMsgFromYaw((wpoints_["path_poses"][i]["yaw"]).as<double>() * 3.14159265359 / 180.0);
     path_.poses.push_back(pose);
   }
   
@@ -214,12 +214,22 @@ public:
   
   st_idx = tar_idx;
   
-double dx = path_smoothed_.poses[tar_idx].pose.position.x - path_smoothed_.poses[tar_idx-1].pose.position.x;
-double dy = path_smoothed_.poses[tar_idx].pose.position.y - path_smoothed_.poses[tar_idx-1].pose.position.y;
+  if (tar_idx >= cummul_distances_.size()) {
+    dxdt[ni_state::XD_IND] = 0;
+  dxdt[ni_state::YD_IND] = 0;
+  }
+  else {
+
+    double dx = path_smoothed_.poses[tar_idx].pose.position.x - x[ni_state::X_IND];
+    double dy = path_smoothed_.poses[tar_idx].pose.position.y - x[ni_state::Y_IND];
+//double dx = path_smoothed_.poses[tar_idx].pose.position.x - path_smoothed_.poses[tar_idx-1].pose.position.x;
+//double dy = path_smoothed_.poses[tar_idx].pose.position.y - path_smoothed_.poses[tar_idx-1].pose.position.y;
 double dnorm = std::sqrt(dx*dx + dy*dy);
   
-  dxdt[ni_state::XD_IND] = dx / dnorm * vf_;
+  dxdt.xd = dx / dnorm * vf_;
   dxdt[ni_state::YD_IND] = dy / dnorm * vf_;
+  }
+
   
   // dxdt.xd = dxdt[ni_state::XD_IND]; 
   
@@ -246,13 +256,16 @@ public:
    */
   bool init()
   {
+    
     traj_tester_.init();
+    //
+   traj_tester_.setParam_TF(60.0);
     
     button_subscriber_ = nh_.subscribe("/mobile_base/events/button", 10, &TrajectoryTester::buttonCB, this);
 
-    odom_subscriber_ = nh_.subscribe("/odom", 1, &TrajectoryTester::OdomCB, this);
+    odom_subscriber_ = nh_.subscribe("visual/odom", 1, &TrajectoryTester::OdomCB, this);
     trajectory_publisher_ = nh_.advertise< pips_trajectory_msgs::trajectory_points >("/turtlebot_controller/trajectory_controller/desired_trajectory", 1000);
-    path_publisher_ = nh_.advertise<nav_msgs::Path>("/desired_path",1000);
+    path_publisher_ = nh_.advertise<nav_msgs::Path>("/desired_path", 1000);
     
     nav_msgs::OdometryPtr init_odom(new nav_msgs::Odometry);
 
@@ -262,7 +275,14 @@ public:
 
     return true;
   };
+  
+  
+//
+  void desTrajPublish() {
+    trajectory_publisher_.publish(trajectory_);
+  };
 
+  
 private:
   ros::NodeHandle nh_, pnh_;
   std::string name_;
@@ -271,7 +291,8 @@ private:
   ros::Publisher trajectory_publisher_, path_publisher_;
   nav_msgs::OdometryPtr curOdom_;
   TurtlebotGenAndTest traj_tester_;
-
+  pips_trajectory_msgs::trajectory_points trajectory_;
+  
   /**
    * @brief ROS logging output for enabling the controller
    * @param msg incoming topic message
@@ -297,11 +318,9 @@ void TrajectoryTester::buttonCB(const kobuki_msgs::ButtonEventPtr& msg)
     ROS_INFO_STREAM("Button pressed: sending trajectory");
 
     nav_msgs::OdometryPtr odom = nav_msgs::OdometryPtr(curOdom_);
-    pips_trajectory_msgs::trajectory_points trajectory = TrajectoryTester::generate_trajectory(odom);
+    trajectory_ = TrajectoryTester::generate_trajectory(odom);
     
-    
-    
-    trajectory_publisher_.publish(trajectory);
+    trajectory_publisher_.publish(trajectory_);
   }
   else
   if (msg->button == kobuki_msgs::ButtonEvent::Button1 && msg->state == kobuki_msgs::ButtonEvent::RELEASED )
@@ -309,11 +328,9 @@ void TrajectoryTester::buttonCB(const kobuki_msgs::ButtonEventPtr& msg)
     ROS_INFO_STREAM("Button pressed: sending trajectory");
 
     nav_msgs::OdometryPtr odom = nav_msgs::OdometryPtr(curOdom_);
-    pips_trajectory_msgs::trajectory_points trajectory = TrajectoryTester::generate_trajectory(odom);
+    trajectory_ = TrajectoryTester::generate_trajectory(odom);
     
-    
-    
-    trajectory_publisher_.publish(trajectory);
+    trajectory_publisher_.publish(trajectory_);
   }
   else
   {
@@ -356,7 +373,8 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     //circle_traj_func trajf(fw_vel,r);
     
     std::vector<TurtlebotGenAndTest::traj_func_ptr> trajectory_functions;
-    near_identity ni(100,100,100,.01);    
+    // near_identity ni(1,5,1,.01);    
+    near_identity ni(100,100,100,.01);   
     TurtlebotGenAndTest::traj_func_ptr traj = std::make_shared<TurtlebotGenAndTest::traj_func_type>(ni);
  //   desired_traj_func::Ptr des_traj = std::make_shared<circle_traj_func>(fw_vel,mag,period);
  //   desired_traj_func::Ptr des_traj = std::make_shared<sin_traj_func>(fw_vel,mag,period);
@@ -365,9 +383,17 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     
     trajectory_functions.push_back(traj);
     
+    // auto valid_trajs = traj_tester_.run(trajectory_functions, odom_msg);
+    // traj_tester_.setParam_TF(40.0);
     auto valid_trajs = traj_tester_.run(trajectory_functions, odom_msg);
 
     pips_trajectory_msgs::trajectory_points trajectory_msg = valid_trajs[0]->toMsg();
+    
+    auto path = valid_trajs[0]->toPathMsg();
+    path->header.frame_id="odom";
+    
+    path_publisher_.publish(path);
+    
     
     return trajectory_msg;
 }
@@ -408,7 +434,14 @@ int main(int argc, char **argv)
 
     if (tester.init())
     {
-        ros::spin();
+      ros::Rate r(10); // 10 hz
+    while (ros::ok())
+    {
+      tester.desTrajPublish();
+      ros::spinOnce();
+      r.sleep();
+    }
+      //  ros::spin();
     }
     else
     {
