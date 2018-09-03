@@ -108,6 +108,7 @@ public:
 class spline_traj_func : public desired_traj_func{
   
   double vf_; //Forward vel
+  double ang_vel_lim_; // Angular vel lim / upper bound
   
   nav_msgs::Path path_, path_smoothed_;
   
@@ -116,7 +117,7 @@ class spline_traj_func : public desired_traj_func{
   int st_idx;
   
 public:
-  spline_traj_func( double vf, std::string waypoints_yaml_) {
+  spline_traj_func( double vf, double ang_vel_lim, std::string waypoints_yaml_) {
     
     //
   int pointsPerUnit, skipPoints;
@@ -124,8 +125,8 @@ public:
   
   pointsPerUnit = 10; // 100;
   skipPoints = 0;
-  useEndConditions = false;
-  useMiddleConditions = false;
+  useEndConditions = true;
+  useMiddleConditions = true;
   
     // load waypoints from waypoints_yaml_
   YAML::Node wpoints_ = YAML::LoadFile(waypoints_yaml_);
@@ -186,6 +187,9 @@ public:
 
     //
     vf_ = vf;
+    assert(vf_ > 0);
+    ang_vel_lim_ = ang_vel_lim;
+    assert(ang_vel_lim_ > 0);
     
     st_idx = 0;
   }
@@ -211,12 +215,11 @@ public:
   }
   assert(tar_idx > 0);
   // std::cout << tar_idx << std::endl;
-  
-  st_idx = tar_idx;
+  // st_idx = tar_idx;
   
   if (tar_idx >= cummul_distances_.size()) {
     dxdt[ni_state::XD_IND] = 0;
-  dxdt[ni_state::YD_IND] = 0;
+    dxdt[ni_state::YD_IND] = 0;
   }
   else {
 
@@ -224,6 +227,10 @@ public:
     double dy = path_smoothed_.poses[tar_idx].pose.position.y - x[ni_state::Y_IND];
 //double dx = path_smoothed_.poses[tar_idx].pose.position.x - path_smoothed_.poses[tar_idx-1].pose.position.x;
 //double dy = path_smoothed_.poses[tar_idx].pose.position.y - path_smoothed_.poses[tar_idx-1].pose.position.y;
+    
+    // TODO
+    // chech the rotation rate from previous vel to current vel
+    
 double dnorm = std::sqrt(dx*dx + dy*dy);
   
   dxdt.xd = dx / dnorm * vf_;
@@ -341,8 +348,9 @@ void TrajectoryTester::buttonCB(const kobuki_msgs::ButtonEventPtr& msg)
 
 pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(const nav_msgs::OdometryPtr& odom_msg)
 {
-    std::string per_key, fw_vel_key, mag_key, path_key;
-    double fw_vel = .05;
+    std::string per_key, fw_vel_key, ang_vel_key, mag_key, path_key;
+    double fw_vel = .5; // m/s
+    double ang_vel_lim = 3.14; // rad/s
     double r = .5;
 
     double period = 3;
@@ -358,6 +366,11 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     if(ros::param::search("fw_vel", fw_vel_key))
     {
         ros::param::get(fw_vel_key, fw_vel); 
+    }
+    
+    if(ros::param::search("ang_vel_lim", ang_vel_key))
+    {
+        ros::param::get(ang_vel_key, ang_vel_lim); 
     }
     
     if(ros::param::search("mag", mag_key))
@@ -378,7 +391,7 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     TurtlebotGenAndTest::traj_func_ptr traj = std::make_shared<TurtlebotGenAndTest::traj_func_type>(ni);
  //   desired_traj_func::Ptr des_traj = std::make_shared<circle_traj_func>(fw_vel,mag,period);
  //   desired_traj_func::Ptr des_traj = std::make_shared<sin_traj_func>(fw_vel,mag,period);
-    desired_traj_func::Ptr des_traj = std::make_shared<spline_traj_func>(fw_vel, waypoint_yaml);
+    desired_traj_func::Ptr des_traj = std::make_shared<spline_traj_func>(fw_vel, ang_vel_lim, waypoint_yaml);
     traj->setTrajFunc(des_traj);
     
     trajectory_functions.push_back(traj);

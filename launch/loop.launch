@@ -1,5 +1,11 @@
 <launch>
 
+
+<node name="turtlebot_controller" pkg="turtlebot_trajectory_controller" type="trajectory_controller_node" output="screen" args="" >
+    <remap from="odom" to="visual/odom"/>
+</node>
+
+
   <node name="turtlebot_trajectory_testing" pkg="turtlebot_trajectory_testing" type="send_test_trajectory" output="screen" args="_fw_vel:=0.7 _waypoint_yaml:=/home/yipuzhao/catkin_ws/src/turtlebot_trajectory_testing/config/loop.yaml" >
   </node>
 
