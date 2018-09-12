@@ -41,7 +41,7 @@ protected:
   
 
   
-  std::vector<traj_func_ptr> getTrajectoryFunctions();
+  virtual std::vector<traj_func_ptr> getTrajectoryFunctions();
   
 public:
   
