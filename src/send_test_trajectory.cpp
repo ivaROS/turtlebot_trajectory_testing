@@ -266,7 +266,7 @@ public:
     
     traj_tester_.init();
     //
-   traj_tester_.setParam_TF(60.0);
+    traj_tester_.setParam_TF(60.0);
     
     button_subscriber_ = nh_.subscribe("/mobile_base/events/button", 10, &TrajectoryTester::buttonCB, this);
 
@@ -387,7 +387,14 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     
     std::vector<TurtlebotGenAndTest::traj_func_ptr> trajectory_functions;
     // near_identity ni(1,5,1,.01);    
-    near_identity ni(100,100,100,.01);   
+ //   near_identity ni(100,100,100,.01);   
+    //
+    double w_max = 0.5;
+    double w_dot_max = 20; // 999;
+    double v_max = 1.5;
+    double a_max = 20; // 999;
+    near_identity ni(100,100,100,.01, v_max, w_max, a_max, w_dot_max);  
+    
     TurtlebotGenAndTest::traj_func_ptr traj = std::make_shared<TurtlebotGenAndTest::traj_func_type>(ni);
  //   desired_traj_func::Ptr des_traj = std::make_shared<circle_traj_func>(fw_vel,mag,period);
  //   desired_traj_func::Ptr des_traj = std::make_shared<sin_traj_func>(fw_vel,mag,period);
