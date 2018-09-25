@@ -265,8 +265,6 @@ public:
   {
     
     traj_tester_.init();
-    //
-    traj_tester_.setParam_TF(60.0);
     
     button_subscriber_ = nh_.subscribe("/mobile_base/events/button", 10, &TrajectoryTester::buttonCB, this);
 
@@ -348,13 +346,14 @@ void TrajectoryTester::buttonCB(const kobuki_msgs::ButtonEventPtr& msg)
 
 pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(const nav_msgs::OdometryPtr& odom_msg)
 {
-    std::string per_key, fw_vel_key, ang_vel_key, mag_key, path_key;
+    std::string per_key, fw_vel_key, ang_vel_key, mag_key, path_key, duration_key;
     double fw_vel = .5; // m/s
     double ang_vel_lim = 3.14; // rad/s
     double r = .5;
 
     double period = 3;
     double mag=1;
+    double duration = 60.0;
     
     std::string waypoint_yaml = "/home/yipuzhao/catkin_ws/src/turtlebot_trajectory_testing/config/path.yaml";
     
@@ -383,6 +382,13 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
         ros::param::get(path_key, waypoint_yaml); 
     }
     
+    if(ros::param::search("duration", duration_key))
+    {
+        ros::param::get(duration_key, duration); 
+    }
+    
+    //
+    traj_tester_.setParam_TF(duration);
     //circle_traj_func trajf(fw_vel,r);
     
     std::vector<TurtlebotGenAndTest::traj_func_ptr> trajectory_functions;
