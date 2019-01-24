@@ -137,7 +137,12 @@ namespace turtlebot_trajectory_testing
     
     std::vector<traj_func_ptr> trajs(funcs.size());
     
-    near_identity ni(1,5,1,.01);    
+    double v_max=.5;
+    double w_max=4;
+    double a_max=.55;
+    double w_dot_max=1.78;
+    
+    near_identity ni(1,5,1,.01,v_max,w_max,a_max,w_dot_max);    
     
     
     for(size_t i = 0; i < funcs.size(); i++)
