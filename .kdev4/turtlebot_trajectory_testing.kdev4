@@ -8,7 +8,7 @@ ProjectRootRelative=./
 
 [CMake][CMake Build Directory 0]
 Build Directory Path=file:///home/yipuzhao/catkin_ws/build/turtlebot_trajectory_testing/
-Build Type=Release -DCMAKE_CXX_FLAGS=-O3 -DNDEBUG -march=native -DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG -march=native
+Build Type=Release
 CMake Binary=file:///usr/bin/cmake
 Environment Profile=
 Extra Arguments=
