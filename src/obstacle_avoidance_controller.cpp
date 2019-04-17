@@ -109,7 +109,15 @@ namespace turtlebot_trajectory_testing
     
     for(size_t i = 0; i < num_paths; i++)
     {
-      double dep_angle = dep_angles[0] + i*(dep_angles[1] - dep_angles[0])/(num_paths - 1); 
+      double dep_angle;
+      if(num_paths == 1)
+      {
+        dep_angle = 0;
+      }
+      else
+      {
+        dep_angle = dep_angles[0] + i*(dep_angles[1] - dep_angles[0])/(num_paths - 1); 
+      }
       trajectory_functions[i] = std::make_shared<angled_straight_traj_func>(dep_angle, velocity);
       
     }
