@@ -4,26 +4,7 @@
 *****************************************************************************/
 // %Tag(FULLTEXT)%
 #include <turtlebot_trajectory_testing/obstacle_avoidance_controller.h>
-
-
-//Generates a straight line trajectory with a given angle and speed
-class angled_straight_traj_func : public desired_traj_func{
-
-    double dep_angle_;
-    double v_;
-
-public:
-    angled_straight_traj_func( double dep_angle, double v ) : dep_angle_(dep_angle), v_(v) { }
-    
-    void dState ( const ni_state &x , ni_state &dxdt , const double  t  )
-    {
-        dxdt[ni_state::XD_IND] = v_*cos( dep_angle_);
-        dxdt[ni_state::YD_IND] = v_*sin( dep_angle_);
-    }
-    
-    
-};
-
+#include <turtlebot_trajectory_functions/angled_straight.h>
 
 
 namespace turtlebot_trajectory_testing
@@ -118,7 +99,7 @@ namespace turtlebot_trajectory_testing
       {
         dep_angle = dep_angles[0] + i*(dep_angles[1] - dep_angles[0])/(num_paths - 1); 
       }
-      trajectory_functions[i] = std::make_shared<angled_straight_traj_func>(dep_angle, velocity);
+      trajectory_functions[i] = std::make_shared<turtlebot_trajectory_functions::AngledStraight>(dep_angle, velocity);
       
     }
     return trajectory_functions;
@@ -132,7 +113,7 @@ namespace turtlebot_trajectory_testing
     
     for(size_t i = 0; i < num_paths; i++)
     {
-      trajectory_functions[i] = std::make_shared<angled_straight_traj_func>(dep_angles[i], velocity);
+      trajectory_functions[i] = std::make_shared<turtlebot_trajectory_functions::AngledStraight>(dep_angles[i], velocity);
     }
     return trajectory_functions;
   }

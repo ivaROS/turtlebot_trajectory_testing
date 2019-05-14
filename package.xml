@@ -58,7 +58,7 @@
   <exec_depend>pips_trajectory_testing</exec_depend>
   <exec_depend>turtlebot_trajectory_controller</exec_depend>
   <exec_depend>turtlebot_trajectory_generator</exec_depend>
-
+  <build_depend>turtlebot_trajectory_functions</build_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

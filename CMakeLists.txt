@@ -11,12 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
   pips_trajectory_testing
   turtlebot_trajectory_controller
   turtlebot_trajectory_generator
+  turtlebot_trajectory_functions
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-find_package(OpenMP)
+# find_package(OpenMP)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -108,7 +109,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES turtlebot_trajectory_tester turtlebot_obstacle_avoidance_controller turtlebot_depth_controller
   CATKIN_DEPENDS pips_trajectory_testing turtlebot_trajectory_controller turtlebot_trajectory_generator
-#  DEPENDS system_lib
+  #DEPENDS 
 )
 
 ###########
@@ -129,12 +130,11 @@ add_library(turtlebot_trajectory_tester
    src/turtlebot_trajectory_tester.cpp
 )
 add_dependencies(turtlebot_trajectory_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
-target_compile_options(turtlebot_trajectory_tester PRIVATE -Wall ${OpenMP_CXX_FLAGS})
-target_compile_options(turtlebot_trajectory_tester PUBLIC  -std=c++11)
+target_compile_options(turtlebot_trajectory_tester PRIVATE -Wall)
+target_compile_options(turtlebot_trajectory_tester PUBLIC ${OpenMP_CXX_FLAGS} -std=c++11)
 target_link_libraries(turtlebot_trajectory_tester
   PUBLIC
    ${catkin_LIBRARIES}
-   #PRIVATE
    ${OpenMP_CXX_FLAGS}
 )
 
@@ -148,8 +148,8 @@ target_link_libraries(turtlebot_obstacle_avoidance_controller
   ${catkin_LIBRARIES}
 )
 add_dependencies(turtlebot_obstacle_avoidance_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
-target_compile_options(turtlebot_obstacle_avoidance_controller PRIVATE -Wall ${OpenMP_CXX_FLAGS})
-target_compile_options(turtlebot_obstacle_avoidance_controller PUBLIC  -std=c++11)
+target_compile_options(turtlebot_obstacle_avoidance_controller PRIVATE -Wall) # ${OpenMP_CXX_FLAGS})
+#target_compile_options(turtlebot_obstacle_avoidance_controller PUBLIC  -std=c++11)
 
 
 ## depth image obstacle_avoidance_controller
@@ -161,8 +161,8 @@ target_link_libraries(turtlebot_depth_controller
   ${catkin_LIBRARIES}
 )
 add_dependencies(turtlebot_depth_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
-target_compile_options(turtlebot_depth_controller PRIVATE -Wall ${OpenMP_CXX_FLAGS})
-target_compile_options(turtlebot_depth_controller PUBLIC  -std=c++11)
+target_compile_options(turtlebot_depth_controller PRIVATE -Wall )
+#target_compile_options(turtlebot_depth_controller PUBLIC  -std=c++11)
 
 
 add_executable(depth_controller
