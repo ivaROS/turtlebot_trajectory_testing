@@ -47,8 +47,9 @@
 
 
 
-namespace kobuki
+namespace turtlebot_trajectory_testing
 {
+using namespace turtlebot_trajectory_generator;
 
 /**
  * @ brief Sends a simple trajectory
@@ -263,7 +264,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "test_trajectory_sender"); //, ros::init_options::NoSigintHandler);
     ros::NodeHandle nh;
     std::string name = ros::this_node::getName();
-    kobuki::TrajectoryTester tester(nh,name);
+    turtlebot_trajectory_testing::TrajectoryTester tester(nh,name);
     
     //signal(SIGINT, mySigintHandler);
 

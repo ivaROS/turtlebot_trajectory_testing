@@ -80,13 +80,13 @@ namespace turtlebot_trajectory_testing
   
   
   
-  std::vector<desired_traj_func::Ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(unsigned int num_paths, double velocity, double path_limits)
+  std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(unsigned int num_paths, double velocity, double path_limits)
   {
     
     //Set trajectory departure angles and speed
     std::vector<double> dep_angles = {-path_limits/2,path_limits/2}; //,.6,.8,1,1.2,1.6,2,2.4};
     
-    std::vector<desired_traj_func::Ptr> trajectory_functions(num_paths);
+    std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> trajectory_functions(num_paths);
     
     for(size_t i = 0; i < num_paths; i++)
     {
@@ -105,11 +105,11 @@ namespace turtlebot_trajectory_testing
     return trajectory_functions;
   }
   
-  std::vector<desired_traj_func::Ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(const std::vector<double>& dep_angles, double velocity)
+  std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(const std::vector<double>& dep_angles, double velocity)
   {
     unsigned int num_paths = dep_angles.size();
     
-    std::vector<desired_traj_func::Ptr> trajectory_functions(num_paths);
+    std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> trajectory_functions(num_paths);
     
     for(size_t i = 0; i < num_paths; i++)
     {
@@ -120,7 +120,7 @@ namespace turtlebot_trajectory_testing
   
   std::vector<traj_func_ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions()
   {
-    std::vector<desired_traj_func::Ptr> funcs = TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(num_paths_, v_des_, path_limits_);
+    std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> funcs = TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(num_paths_, v_des_, path_limits_);
     
     
     
@@ -131,7 +131,7 @@ namespace turtlebot_trajectory_testing
     double a_max=.55;
     double w_dot_max=1.78;
     
-    near_identity ni(1,5,1,.01,v_max,w_max,a_max,w_dot_max);    
+    turtlebot_trajectory_generator::near_identity ni(1,5,1,.01,v_max,w_max,a_max,w_dot_max);    
     
     
     for(size_t i = 0; i < funcs.size(); i++)
