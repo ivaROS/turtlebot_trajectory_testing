@@ -17,6 +17,8 @@ namespace turtlebot_trajectory_testing
   typedef TurtlebotGenAndTest::trajectory_ptr trajectory_ptr;
   typedef TurtlebotGenAndTest::pips_trajectory_ptr pips_trajectory_ptr;
   
+  typedef turtlebot_trajectory_generator::traj_func_type traj_type;  
+  typedef turtlebot_trajectory_generator::desired_traj_func desired_traj_func;
   typedef turtlebot_trajectory_generator::desired_traj_func::Ptr des_traj_func_ptr;
 }
 
