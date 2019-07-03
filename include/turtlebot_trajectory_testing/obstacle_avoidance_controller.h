@@ -9,6 +9,8 @@
 #include <kobuki_msgs/ButtonEvent.h>
 #include <kobuki_msgs/BumperEvent.h>
 
+#include <turtlebot_trajectory_testing/ni_config_utility.h>
+
 
 namespace turtlebot_trajectory_testing
 {
@@ -33,6 +35,7 @@ public:
   
 protected:
   ros::Subscriber button_sub_, bumper_sub_;
+  NIConfigUtility ni_util_;
 
   void buttonCB(const kobuki_msgs::ButtonEvent::ConstPtr& msg);
   void bumperCB(const kobuki_msgs::BumperEvent::ConstPtr& msg);

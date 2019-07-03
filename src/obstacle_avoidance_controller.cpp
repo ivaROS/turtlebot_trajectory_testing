@@ -6,17 +6,16 @@
 #include <turtlebot_trajectory_testing/obstacle_avoidance_controller.h>
 #include <turtlebot_trajectory_functions/angled_straight.h>
 
-
 namespace turtlebot_trajectory_testing
 {
   
   typedef TurtlebotObstacleAvoidanceController::traj_func_ptr traj_func_ptr;
   
   TurtlebotObstacleAvoidanceController::TurtlebotObstacleAvoidanceController(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name) : 
-    TurtlebotObstacleAvoidanceController::Controller(nh, pnh)
-
+    TurtlebotObstacleAvoidanceController::Controller(nh, pnh),
+    ni_util_()
   {
-    
+    ni_util_.init(pnh);
   };
   
 /*  
@@ -122,25 +121,26 @@ namespace turtlebot_trajectory_testing
   {
     std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> funcs = TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(num_paths_, v_des_, path_limits_);
     
+    std::vector<traj_func_ptr> trajs = ni_util_.getTrajFunc(funcs);
     
     
-    std::vector<traj_func_ptr> trajs(funcs.size());
-    
-    double v_max=.5;
-    double w_max=4;
-    double a_max=.55;
-    double w_dot_max=1.78;
-    
-    turtlebot_trajectory_generator::near_identity ni(1,5,1,.01,v_max,w_max,a_max,w_dot_max);    
-    
-    
-    for(size_t i = 0; i < funcs.size(); i++)
-    {
-      traj_func_ptr traj = std::make_shared<TurtlebotObstacleAvoidanceController::traj_func_type>(ni);
-      traj->setTrajFunc(funcs[i]);
-
-      trajs[i] = traj;
-    }
+//     std::vector<traj_func_ptr> trajs(funcs.size());
+//     
+//     double v_max=.5;
+//     double w_max=4;
+//     double a_max=.55;
+//     double w_dot_max=1.78;
+//     
+//     turtlebot_trajectory_generator::near_identity ni(1,5,1,.01,v_max,w_max,a_max,w_dot_max);    
+//     
+//     
+//     for(size_t i = 0; i < funcs.size(); i++)
+//     {
+//       traj_func_ptr traj = std::make_shared<TurtlebotObstacleAvoidanceController::traj_func_type>(ni);
+//       traj->setTrajFunc(funcs[i]);
+// 
+//       trajs[i] = traj;
+//     }
     
     return trajs;
     
