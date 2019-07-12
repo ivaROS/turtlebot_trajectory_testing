@@ -123,7 +123,7 @@ public:
   int pointsPerUnit, skipPoints;
   bool useEndConditions, useMiddleConditions;
   
-  pointsPerUnit = 10; // 100;
+  pointsPerUnit = 10; // 200; // 
   skipPoints = 0;
   useEndConditions = true;
   useMiddleConditions = true;
@@ -352,7 +352,7 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     double r = .5;
 
     double period = 3;
-    double mag=1;
+    double mag = 1;
     double duration = 60.0;
     
     std::string waypoint_yaml = "/home/yipuzhao/catkin_ws/src/turtlebot_trajectory_testing/config/path.yaml";
@@ -399,7 +399,7 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     double w_dot_max = 20; // 999;
     double v_max = 1.5;
     double a_max = 20; // 999;
-    near_identity ni(100,100,100,.01, v_max, w_max, a_max, w_dot_max);  
+    near_identity ni(100, 100, 100, .01, v_max, w_max, a_max, w_dot_max);  
     
     TurtlebotGenAndTest::traj_func_ptr traj = std::make_shared<TurtlebotGenAndTest::traj_func_type>(ni);
  //   desired_traj_func::Ptr des_traj = std::make_shared<circle_traj_func>(fw_vel,mag,period);
