@@ -128,6 +128,7 @@ include_directories(
 ## pips_trajectory_tester specialized for turtlebot
 add_library(turtlebot_trajectory_tester
    src/turtlebot_trajectory_tester.cpp
+   src/cubic_spline_interpolator.cpp
 )
 add_dependencies(turtlebot_trajectory_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
 target_compile_options(turtlebot_trajectory_tester PRIVATE -Wall)
@@ -135,6 +136,8 @@ target_compile_options(turtlebot_trajectory_tester PUBLIC ${OpenMP_CXX_FLAGS} -s
 target_link_libraries(turtlebot_trajectory_tester
   PUBLIC
    ${catkin_LIBRARIES}
+   yaml-cpp
+   #PRIVATE
    ${OpenMP_CXX_FLAGS}
 )
 
