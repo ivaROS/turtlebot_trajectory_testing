@@ -4,27 +4,7 @@
 *****************************************************************************/
 // %Tag(FULLTEXT)%
 #include <turtlebot_trajectory_testing/obstacle_avoidance_controller.h>
-
-
-//Generates a straight line trajectory with a given angle and speed
-class angled_straight_traj_func : public desired_traj_func{
-
-    double dep_angle_;
-    double v_;
-
-public:
-    angled_straight_traj_func( double dep_angle, double v ) : dep_angle_(dep_angle), v_(v) { }
-    
-    void dState ( const ni_state &x , ni_state &dxdt , const double  t  )
-    {
-        dxdt[ni_state::XD_IND] = v_*cos( dep_angle_);
-        dxdt[ni_state::YD_IND] = v_*sin( dep_angle_);
-    }
-    
-    
-};
-
-
+#include <turtlebot_trajectory_functions/angled_straight.h>
 
 namespace turtlebot_trajectory_testing
 {
@@ -32,10 +12,10 @@ namespace turtlebot_trajectory_testing
   typedef TurtlebotObstacleAvoidanceController::traj_func_ptr traj_func_ptr;
   
   TurtlebotObstacleAvoidanceController::TurtlebotObstacleAvoidanceController(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name) : 
-    TurtlebotObstacleAvoidanceController::Controller(nh, pnh)
-
+    TurtlebotObstacleAvoidanceController::Controller(nh, pnh),
+    ni_util_()
   {
-    
+    ni_util_.init(pnh);
   };
   
 /*  
@@ -99,59 +79,68 @@ namespace turtlebot_trajectory_testing
   
   
   
-  std::vector<desired_traj_func::Ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(unsigned int num_paths, double velocity, double path_limits)
+  std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(unsigned int num_paths, double velocity, double path_limits)
   {
     
     //Set trajectory departure angles and speed
     std::vector<double> dep_angles = {-path_limits/2,path_limits/2}; //,.6,.8,1,1.2,1.6,2,2.4};
     
-    std::vector<desired_traj_func::Ptr> trajectory_functions(num_paths);
+    std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> trajectory_functions(num_paths);
     
     for(size_t i = 0; i < num_paths; i++)
     {
-      double dep_angle = dep_angles[0] + i*(dep_angles[1] - dep_angles[0])/(num_paths - 1); 
-      trajectory_functions[i] = std::make_shared<angled_straight_traj_func>(dep_angle, velocity);
+      double dep_angle;
+      if(num_paths == 1)
+      {
+        dep_angle = 0;
+      }
+      else
+      {
+        dep_angle = dep_angles[0] + i*(dep_angles[1] - dep_angles[0])/(num_paths - 1); 
+      }
+      trajectory_functions[i] = std::make_shared<turtlebot_trajectory_functions::AngledStraight>(dep_angle, velocity);
       
     }
     return trajectory_functions;
   }
   
-  std::vector<desired_traj_func::Ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(const std::vector<double>& dep_angles, double velocity)
+  std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(const std::vector<double>& dep_angles, double velocity)
   {
     unsigned int num_paths = dep_angles.size();
     
-    std::vector<desired_traj_func::Ptr> trajectory_functions(num_paths);
+    std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> trajectory_functions(num_paths);
     
     for(size_t i = 0; i < num_paths; i++)
     {
-      trajectory_functions[i] = std::make_shared<angled_straight_traj_func>(dep_angles[i], velocity);
+      trajectory_functions[i] = std::make_shared<turtlebot_trajectory_functions::AngledStraight>(dep_angles[i], velocity);
     }
     return trajectory_functions;
   }
   
   std::vector<traj_func_ptr> TurtlebotObstacleAvoidanceController::getTrajectoryFunctions()
   {
-    std::vector<desired_traj_func::Ptr> funcs = TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(num_paths_, v_des_, path_limits_);
+    std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> funcs = TurtlebotObstacleAvoidanceController::getTrajectoryFunctions(num_paths_, v_des_, path_limits_);
+    
+    std::vector<traj_func_ptr> trajs = ni_util_.getTrajFunc(funcs);
     
     
-    
-    std::vector<traj_func_ptr> trajs(funcs.size());
-    
-    double v_max=.5;
-    double w_max=4;
-    double a_max=.55;
-    double w_dot_max=1.78;
-    
-    near_identity ni(1,5,1,.01,v_max,w_max,a_max,w_dot_max);    
-    
-    
-    for(size_t i = 0; i < funcs.size(); i++)
-    {
-      traj_func_ptr traj = std::make_shared<TurtlebotObstacleAvoidanceController::traj_func_type>(ni);
-      traj->setTrajFunc(funcs[i]);
-
-      trajs[i] = traj;
-    }
+//     std::vector<traj_func_ptr> trajs(funcs.size());
+//     
+//     double v_max=.5;
+//     double w_max=4;
+//     double a_max=.55;
+//     double w_dot_max=1.78;
+//     
+//     turtlebot_trajectory_generator::near_identity ni(1,5,1,.01,v_max,w_max,a_max,w_dot_max);    
+//     
+//     
+//     for(size_t i = 0; i < funcs.size(); i++)
+//     {
+//       traj_func_ptr traj = std::make_shared<TurtlebotObstacleAvoidanceController::traj_func_type>(ni);
+//       traj->setTrajFunc(funcs[i]);
+// 
+//       trajs[i] = traj;
+//     }
     
     return trajs;
     

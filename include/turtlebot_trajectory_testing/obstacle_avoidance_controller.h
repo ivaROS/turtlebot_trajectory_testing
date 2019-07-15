@@ -9,11 +9,13 @@
 #include <kobuki_msgs/ButtonEvent.h>
 #include <kobuki_msgs/BumperEvent.h>
 
+#include <turtlebot_trajectory_testing/ni_config_utility.h>
+
 
 namespace turtlebot_trajectory_testing
 {
-
-  typedef pips_trajectory_testing::ObstacleAvoidanceController<turtlebot_trajectory_controller::TrajectoryController, TurtlebotGenAndTest> controller_type;
+  
+  typedef pips_trajectory_testing::ObstacleAvoidanceController<turtlebot_trajectory_controller::TrajectoryController, GenAndTest> controller_type;
 
 class TurtlebotObstacleAvoidanceController : public controller_type
 {
@@ -33,6 +35,7 @@ public:
   
 protected:
   ros::Subscriber button_sub_, bumper_sub_;
+  NIConfigUtility ni_util_;
 
   void buttonCB(const kobuki_msgs::ButtonEvent::ConstPtr& msg);
   void bumperCB(const kobuki_msgs::BumperEvent::ConstPtr& msg);
@@ -45,11 +48,11 @@ protected:
   
 public:
   
-  static std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(unsigned int num_paths, double velocity);
+  static std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> getTrajectoryFunctions(unsigned int num_paths, double velocity);
   
-  static std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(unsigned int num_paths, double velocity, double path_limits);
+  static std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> getTrajectoryFunctions(unsigned int num_paths, double velocity, double path_limits);
   
-  static std::vector<desired_traj_func::Ptr> getTrajectoryFunctions(const std::vector<double>& dep_angles, double velocity);
+  static std::vector<turtlebot_trajectory_generator::desired_traj_func::Ptr> getTrajectoryFunctions(const std::vector<double>& dep_angles, double velocity);
 
 };
 
