@@ -397,13 +397,13 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
  //   near_identity ni(100,100,100,.01);   
     //
 // NOTE try increase the limitation for fast-moving simulation
-//    double w_max = 0.5;
-//    double v_max = 2.0;
+    double w_max = 0.5;
+    double v_max = 2.0;
 // NOTE the following config are being used in all previous closed-loop simulation
- double w_max = 0.5;
- double v_max = 1.5;
-    double w_dot_max = 20; // 999; // 
-    double a_max = 20; // 999; // 
+// double w_max = 0.5;
+// double v_max = 1.5;
+    double w_dot_max = 1.78; // 20; // 999; // 
+    double a_max = .55; // 999; // 
     near_identity ni(1, 5, 1, .01, v_max, w_max, a_max, w_dot_max);  
     
     TurtlebotGenAndTest::traj_func_ptr traj = std::make_shared<TurtlebotGenAndTest::traj_func_type>(ni);
