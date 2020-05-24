@@ -13,9 +13,11 @@ namespace turtlebot_trajectory_testing
   
   TurtlebotObstacleAvoidanceController::TurtlebotObstacleAvoidanceController(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name) : 
     TurtlebotObstacleAvoidanceController::Controller(nh, pnh),
-    ni_util_()
+    ni_util_(),
+    tfm_(false)
   {
     ni_util_.init(pnh);
+    tfm_ = tf2_utils::TransformManager(tfBuffer_, tf_listener_);
   };
   
 /*  

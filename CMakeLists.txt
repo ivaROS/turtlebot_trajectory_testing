@@ -107,8 +107,8 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES turtlebot_trajectory_tester turtlebot_obstacle_avoidance_controller turtlebot_depth_controller
-  CATKIN_DEPENDS pips_trajectory_testing turtlebot_trajectory_controller turtlebot_trajectory_generator
+  LIBRARIES turtlebot_trajectory_tester turtlebot_obstacle_avoidance_controller #turtlebot_depth_controller
+  CATKIN_DEPENDS pips_trajectory_testing turtlebot_trajectory_controller turtlebot_trajectory_generator turtlebot_trajectory_functions
   #DEPENDS 
 )
 
@@ -152,8 +152,7 @@ target_link_libraries(turtlebot_obstacle_avoidance_controller
 )
 add_dependencies(turtlebot_obstacle_avoidance_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) 
 target_compile_options(turtlebot_obstacle_avoidance_controller PRIVATE -Wall) # ${OpenMP_CXX_FLAGS})
-#target_compile_options(turtlebot_obstacle_avoidance_controller PUBLIC  -std=c++11)
-
+target_compile_options(turtlebot_obstacle_avoidance_controller PUBLIC  -std=c++11)
 
 ## depth image obstacle_avoidance_controller
 add_library(turtlebot_depth_controller
@@ -186,6 +185,19 @@ target_link_libraries(send_test_trajectory
   turtlebot_trajectory_tester
    ${catkin_LIBRARIES}
    )
+
+
+add_executable(enhanced_depth_controller
+  src/enhanced_depth_controller_node.cpp
+)
+add_dependencies(enhanced_depth_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_compile_options(enhanced_depth_controller PUBLIC  -std=c++11)
+target_link_libraries(enhanced_depth_controller
+  turtlebot_depth_controller
+  ${catkin_LIBRARIES}
+)
+
+
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

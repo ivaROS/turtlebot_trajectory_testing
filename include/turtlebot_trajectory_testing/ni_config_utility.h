@@ -1,3 +1,6 @@
+#ifndef NI_CONFIG_UTILITY_H
+#define NI_CONFIG_UTILITY_H
+
 #include <turtlebot_trajectory_generator/near_identity.h>
 #include <turtlebot_trajectory_testing/NIConfigUtilityConfig.h>
 #include <dynamic_reconfigure/server.h>
@@ -79,3 +82,6 @@ namespace turtlebot_trajectory_testing
     }
   };
 }
+
+
+#endif // NI_CONFIG_UTILITY_H
