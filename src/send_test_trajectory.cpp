@@ -429,7 +429,6 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     
     path_publisher_.publish(path);
     
-    ROS_INFO_STREAM(trajectory_msg.header.frame_id);
     return trajectory_msg;
 }
 
