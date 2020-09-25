@@ -471,7 +471,7 @@ int main(int argc, char **argv)
       ros::Rate r(10); // 10 hz
     while (ros::ok())
     {
-      tester.desTrajPublish();
+      // tester.desTrajPublish();
       ros::spinOnce();
       r.sleep();
     }
