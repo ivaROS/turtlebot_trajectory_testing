@@ -407,7 +407,8 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
 // double v_max = 1.5;
     double w_dot_max = 1.78; // 20; // 999; // 
     double a_max = .55; // 999; // 
-    near_identity ni(1, 5, 1, .01, v_max, w_max, a_max, w_dot_max);  
+    //near_identity ni(1, 5, 1, .01, v_max, w_max, a_max, w_dot_max);  
+    near_identity ni(0.5, 30, 1, .05, v_max, w_max, a_max, w_dot_max);  
     
     TurtlebotGenAndTest::traj_func_ptr traj = std::make_shared<TurtlebotGenAndTest::traj_func_type>(ni);
  //   desired_traj_func::Ptr des_traj = std::make_shared<circle_traj_func>(fw_vel,mag,period);
@@ -426,6 +427,8 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     auto path = valid_trajs[0]->toPathMsg();
     // path->header.frame_id="odom";
     path->header.frame_id=trajectory_msg.header.frame_id;
+
+    ROS_INFO_STREAM("Terminal pose: " << path->poses.back().pose);
     
     path_publisher_.publish(path);
     
