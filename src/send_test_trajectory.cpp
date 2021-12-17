@@ -408,7 +408,7 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     double w_dot_max = 1.78; // 20; // 999; // 
     double a_max = .55; // 999; // 
     // near_identity ni(1, 5, 1, .01, v_max, w_max, a_max, w_dot_max);  
-    near_identity ni(0.5, 30, 1, .05, v_max, w_max, a_max, w_dot_max);  
+    near_identity ni(0.5, 5, 1, .01, v_max, w_max, a_max, w_dot_max);  
     
     TurtlebotGenAndTest::traj_func_ptr traj = std::make_shared<TurtlebotGenAndTest::traj_func_type>(ni);
  //   desired_traj_func::Ptr des_traj = std::make_shared<circle_traj_func>(fw_vel,mag,period);
