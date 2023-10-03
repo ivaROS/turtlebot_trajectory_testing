@@ -83,5 +83,4 @@ namespace turtlebot_trajectory_testing
   };
 }
 
-
 #endif // NI_CONFIG_UTILITY_H
