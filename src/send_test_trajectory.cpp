@@ -269,7 +269,7 @@ public:
     
     button_subscriber_ = nh_.subscribe("/mobile_base/events/button", 10, &TrajectoryTester::buttonCB, this);
 
-    odom_subscriber_ = nh_.subscribe("visual/odom", 1, &TrajectoryTester::OdomCB, this);
+    odom_subscriber_ = nh_.subscribe("odom", 1, &TrajectoryTester::OdomCB, this);
     trajectory_publisher_ = nh_.advertise< pips_trajectory_msgs::trajectory_points >("/turtlebot_controller/trajectory_controller/desired_trajectory", 1000);
     path_publisher_ = nh_.advertise<nav_msgs::Path>("/desired_path", 1000);
     
@@ -342,6 +342,7 @@ void TrajectoryTester::buttonCB(const kobuki_msgs::ButtonEventPtr& msg)
   {
     ROS_INFO_STREAM("Button event");
   }
+  button_subscriber_.shutdown();
 };
 
 
@@ -419,7 +420,10 @@ pips_trajectory_msgs::trajectory_points TrajectoryTester::generate_trajectory(co
     auto valid_trajs = traj_tester_.run(trajectory_functions, odom_msg);
 
     pips_trajectory_msgs::trajectory_points trajectory_msg = valid_trajs[0]->toMsg();
-    
+    // ROS_INFO_STREAM("tj msg header = " << trajectory_msg.header.frame_id);
+    trajectory_msg.header.frame_id = "odom";
+    // ROS_INFO_STREAM("tj msg new header = " << trajectory_msg.header.frame_id);
+
     auto path = valid_trajs[0]->toPathMsg();
     path->header.frame_id="odom";
     
